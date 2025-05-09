@@ -92,16 +92,24 @@ class State():
 def Uniform_Cost_Search(initial_state, goal_state):
     frontier = deque([initial_state])
     seen_states = set()
+    # Initialize node counter
+    node_expansions = 0
+
     while frontier:
         current_state = frontier.popleft()
-        print("Best state to expand to with g(n) = " + str(current_state.depth) + " is: ")
+        node_expansions += 1
+
+        #print("Best state to expand to with g(n) = " + str(current_state.depth) + " is: ")
+
         for row in current_state.state_value:
             print(row)
         if current_state.state_value == goal_state:
             print("FOUND")
             print("Goal reached!")
+            print("Solution depth:", current_state.depth)
             print("Path to solution: ")
             print_solution_path(current_state)
+            print("Total nodes expanded:", node_expansions)
             return
         possible_moves = generate_all_moves(current_state.state_value)
         for next_state_value in possible_moves:
@@ -114,9 +122,12 @@ def Uniform_Cost_Search(initial_state, goal_state):
                 next_state = State(next_state_value, current_state, current_state.depth + 1)
                 frontier.append(next_state)
     print("Goal not reached.")
+    print("Total nodes expanded:", node_expansions)
 
 def AStar_Search(initial_state, goal_state):
     goal_positions = {}
+    node_expansions = 0
+
     for i in range(len(goal_state.state_value)):
         for j in range(len(goal_state.state_value[i])):
             value = goal_state.state_value[i][j]
@@ -132,14 +143,19 @@ def AStar_Search(initial_state, goal_state):
 
     while frontier:
         current_cost, cost_counter, current_state = heapq.heappop(frontier)
-        print("Best state to expand to with f(n) = g(n) + h(n) = " + str(current_cost) + " is:")
+        node_expansions += 1
+
+        #print("Best state to expand to with f(n) = g(n) + h(n) = " + str(current_cost) + " is:")
+
         for row in current_state.state_value:
             continue
         if current_state.state_value == goal_state.state_value:
             print("FOUND")
             print("Goal reached!")
+            print("Solution depth:", current_state.depth)
             print("Path to solution: ")
             print_solution_path(current_state)
+            print("Total nodes expanded:", node_expansions)
             return
         next_moves = generate_all_moves(current_state.state_value)
         for next_state_value in next_moves:
@@ -154,17 +170,76 @@ def AStar_Search(initial_state, goal_state):
                 total_cost = next_state.depth + heuristic
                 heapq.heappush(frontier, (total_cost, next(counter), next_state))
     print("Goal not reached.")
+    print("Total nodes expanded:", node_expansions)
+
+def mainUI():
+    goal_state = [[-1,-1,-1,0,-1,0,-1,0,-1,-1],
+                    [1,2,3,4,5,6,7,8,9,0]]
+    goal_state = State(goal_state)
+    
+    initial_state = []
+    
+    print("Welcome to mtrev008's Nine Men in a Trench puzzle solver!")
+    choice = int(input('Type “1” to use a default puzzle, or “2” to enter your own puzzle: '))
+
+    while choice != 1 and choice != 2:
+        choice = input('Invalid input! Chose "1" to use a default puzzle, or "2" to enter your own puzzle: ')
+
+    if choice == 2:
+        while True:
+            print("Great! Now enter 10 numbers (separated by a space) to represent the recesses. Enter 0 for the " \
+            "empty recesses and -1 for the unavailable recesses.")
+            recesses = input()
+            recesses = recesses.strip().split()
+            recesses = [int(x) for x in recesses]
+            # print(recesses)
+
+            if len(recesses) != 10:
+                print("Invalid input! Enter only 10 numbers")
+                continue
+
+            print("Great! Now enter 10 numbers (separated by a space) to represent the trenches. Enter 0 for the " \
+            "empty trench.")
+            trenches = input()
+            trenches = trenches.strip().split()
+
+            trenches = [int(x) for x in trenches]
+            #print(trenches)
+
+            if len(trenches) != 10:
+                print("Invalid input! Enter only 10 numbers")
+                continue
+
+            # Valid input
+            break
+
+        initial_state = [recesses, trenches]
+        initial_state = State(initial_state)
+    else:
+        initial_state = [[-1,-1,-1,0,-1,0,-1,0,-1,-1],
+                        [0,2,3,4,5,6,7,8,9,1]]
+        initial_state = State(initial_state)
 
 
-initial_state = [[-1,-1,-1,0,-1,0,-1,0,-1,-1],
-                 [0,2,3,4,5,6,7,8,9,1]]
-goal_state = [[-1,-1,-1,0,-1,0,-1,0,-1,-1],
-              [1,2,3,4,5,6,7,8,9,0]]
+    print("Now choose your algorithm... ")
+    print("1. Uniform Cost Search or 2. Astar With Manhattan Distance Heuristic")
+    algorithm_choice = int(input())
 
-initial_state = State(initial_state)
-goal_state = State(goal_state)
+    while algorithm_choice != 1 and algorithm_choice != 2:
+        algorithm_choice = input('Invalid input! Chose "1" for Uniform Cost Search or "2" for Astar With Manhattan Distance Heuristic: ')
 
-start_time = time.time()
-#Uniform_Cost_Search(initial_state, goal_state)
-AStar_Search(initial_state, goal_state)
-print("Time elapsed:", round(time.time() - start_time, 2), "seconds")
+
+    if algorithm_choice == 1:
+        print("Running Uniform Cost Search... ")
+        start_time = time.time()
+        Uniform_Cost_Search(initial_state, goal_state)
+        print("Time elapsed:", round(time.time() - start_time, 2), "seconds")
+    elif algorithm_choice == 2:
+        print("Running Astar With Manhattan Distance Heuristic... ")
+        start_time = time.time()
+        AStar_Search(initial_state, goal_state)
+        print("Time elapsed:", round(time.time() - start_time, 2), "seconds")
+
+
+# Run main UI code
+mainUI()
