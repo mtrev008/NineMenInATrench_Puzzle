@@ -115,6 +115,46 @@ def Uniform_Cost_Search(initial_state, goal_state):
                 frontier.append(next_state)
     print("Goal not reached.")
 
+def AStar_Search(initial_state, goal_state):
+    goal_positions = {}
+    for i in range(len(goal_state.state_value)):
+        for j in range(len(goal_state.state_value[i])):
+            value = goal_state.state_value[i][j]
+            if value > 0:
+                goal_positions[value] = (i, j)
+
+    frontier = []
+    counter = itertools.count()
+    seen_states = set()
+
+    initial_h = computeManhattanDistance(initial_state.state_value, goal_positions)
+    heapq.heappush(frontier, (initial_h, next(counter), initial_state))
+
+    while frontier:
+        current_cost, cost_counter, current_state = heapq.heappop(frontier)
+        print("Best state to expand to with f(n) = g(n) + h(n) = " + str(current_cost) + " is:")
+        for row in current_state.state_value:
+            continue
+        if current_state.state_value == goal_state.state_value:
+            print("FOUND")
+            print("Goal reached!")
+            print("Path to solution: ")
+            print_solution_path(current_state)
+            return
+        next_moves = generate_all_moves(current_state.state_value)
+        for next_state_value in next_moves:
+            state_tuple = []
+            for row in next_state_value:
+                state_tuple.append(tuple(row))
+            state_tuple = tuple(state_tuple)
+            if state_tuple not in seen_states:
+                seen_states.add(state_tuple)
+                next_state = State(next_state_value, current_state, current_state.depth + 1)
+                heuristic = computeManhattanDistance(next_state_value, goal_positions)
+                total_cost = next_state.depth + heuristic
+                heapq.heappush(frontier, (total_cost, next(counter), next_state))
+    print("Goal not reached.")
+
 
 initial_state = [[-1,-1,-1,0,-1,0,-1,0,-1,-1],
                  [0,2,3,4,5,6,7,8,9,1]]
@@ -125,5 +165,6 @@ initial_state = State(initial_state)
 goal_state = State(goal_state)
 
 start_time = time.time()
-Uniform_Cost_Search(initial_state, goal_state)
+#Uniform_Cost_Search(initial_state, goal_state)
+AStar_Search(initial_state, goal_state)
 print("Time elapsed:", round(time.time() - start_time, 2), "seconds")
