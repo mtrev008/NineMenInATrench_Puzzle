@@ -5,6 +5,7 @@ import itertools
 import time
 
 def computeManhattanDistance(state_grid, goal_positions):
+    # Gets the total distance from each soldier and their goal position
     distance = 0
     for i in range(len(state_grid)):
         for j in range(len(state_grid[i])):
@@ -23,6 +24,7 @@ def find_moves(state):
 
     for i in range(len(state)):
         for j in range(len(state[i])):
+            # Move soldier as far as empty spaces exist
             if state[i][j] > 0:
                 up = i - 1
                 while up >= 0 and state[up][j] == 0:
@@ -51,6 +53,7 @@ def find_moves(state):
     return valid_soldiers
 
 def generate_all_moves(state_value):
+    # Returns all possible valid states
     valid_moves = find_moves(state_value)
     state_list = []
     for move in valid_moves:
@@ -90,6 +93,7 @@ class State():
         self.parent = parent
 
 def Uniform_Cost_Search(initial_state, goal_state):
+    # Expand the node with the lowest g(n) cost
     frontier = deque([initial_state])
     seen_states = set()
     # Initialize node counter
@@ -125,6 +129,7 @@ def Uniform_Cost_Search(initial_state, goal_state):
     print("Total nodes expanded:", node_expansions)
 
 def AStar_Search(initial_state, goal_state):
+    # Expands the node with the lowest cost (f(n) = g(n) + h(n))
     goal_positions = {}
     node_expansions = 0
 
@@ -138,7 +143,9 @@ def AStar_Search(initial_state, goal_state):
     counter = itertools.count()
     seen_states = set()
 
+    # Compute heuristic and f(n)
     initial_h = computeManhattanDistance(initial_state.state_value, goal_positions)
+    # Push new state to frontier
     heapq.heappush(frontier, (initial_h, next(counter), initial_state))
 
     while frontier:
